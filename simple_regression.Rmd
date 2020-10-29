@@ -1,0 +1,146 @@
+---
+title: "STAT 5310 - Midterm Review"
+author: "Shantanu Neema"
+date: "October 25, 2017"
+output: pdf_document
+geometry: margin=0.75in
+fontsize: 12pt
+---
+
+## Solution 1
+
+To derive the least square equations, one needs to start from the "least squares" criterian used to create the regression line $y = \beta_0 + {\beta_1}{x}$ that fits given data points. Let's assume given data points are: $(x_1,y_1),(x_2,y_2),...,(x_n,y_n)$. The regression line is such that the sum of squares of vertical distances from the points to the line has to be minimum. The sum of squares of distances for all points is given by:
+
+$$
+\begin{aligned}
+S &= \sum\limits_{i=1}^n[y_i-(\beta_0+\beta_1{x_i})]^2\\
+&= \sum\limits_{i=1}^n[y_i^2-2(\beta_0+\beta_1x_i)y_i+(\beta_0+\beta_1x_i)^2]\\
+&= \sum\limits_{i=1}^n[y_i^2-2\beta_1x_iy_i-2\beta_0 y_i+(\beta_1^2x_i^2+2\beta_0\beta_1 x_i+\beta_0^2)]\\
+&= \sum y_i^2-2\beta_1\sum x_i y_i+2\beta_0\beta_1\sum x_i+\beta_1^2\sum x_i^2-2\beta_0\sum y_i+n\beta_0^2\\
+&= (\sum x_i^2)\beta_1^2+\Big[(2\beta_0\sum x_i)-(2\sum x_i y_i)\Big]\beta_1+\Big[\sum y_i^2-2\beta_0\sum y_i+n\beta_0^2\Big]
+\end{aligned}
+$$
+
+From above equation, one can see that the sum of squares or $S$ is a quadratic function of $\beta_1$. Above equation can also be re-written as quadratic funtion of $\beta_0$ as:
+$$ S = n\beta_0^2+\Big[2\beta_1\sum x_i-2\sum y_i\Big]\beta_0+\Big[\sum y_i^2+\beta_1^2\sum x_i^2-2\beta_1\sum x_i y_i\Big]$$
+The leading coefficients of both parabolic equations above are positive, so both of the parabola $S$ opens upwards and the minimum occurs at its vertex which is given by $-b/2a$, (for parabola: $y = ax^2+bx+c$). Take vertex of both equations for $S$ below:
+
+$$
+\begin{aligned}
+\beta_1 &= \frac{-\big[2\beta_0\sum x_i-2\sum x_i y_i\big]}{2\sum x_i^2}
+= \frac{-\big[\beta_0\sum x_i-\sum x_i y_i\big]}{\sum x_i^2}\\
+or, \beta_1 \sum x_i^2&=\sum x_i y_i-\beta_0\sum x_i\\
+\end{aligned}
+$$
+$$
+\begin{aligned}
+\beta_0 &= \frac{-\big[2\beta_1\sum x_i-2\sum y_i\big]}{2n}
+= \frac{-\big[\beta_1\sum x_i-\sum y_i\big]}{n}\\
+or, n\beta_0 &= \sum y_i - \beta_1\sum x_i
+\end{aligned}
+$$
+From above 2 equations which are also known as \textit{normal equations} in statistics, one can derive values for $\beta_0$ and $\beta_1$ as follows:
+
+$$
+\begin{aligned}
+\beta_0 &= \frac{(\sum x_i^2)(\sum y_i)-(\sum x_i y_i)(\sum x_i)}{n(\sum x_i^2)-(\sum x_i)^2} \\
+\beta_1 &= \frac{n(\sum x_i y_i)-(\sum x_i)(\sum y_i)}{n(\sum x_i^2)-(\sum x_i)^2}
+\end{aligned}
+$$
+
+## Solution 2
+
+Following quantities are given:
+
+$\sum xy = 349.2825$, $\sum x = 55$, $\sum y = 82.54273$, $\sum x^2 = 385$, and $n=10$
+
+\textbf{Part (a)}
+To determine least square equation, one needs to determine $\beta_0$ and $\beta_1$ as follows:
+
+$$
+\begin{aligned}
+\beta_0 &= \frac{(\sum x_i^2)(\sum y_i)-(\sum x_i y_i)(\sum x_i)}{n(\sum x_i^2)-\sum x_i^2} \\
+&= \frac{385\times82.54273 - 349.2825\times55}{10\times385-55^2}\\
+&= 15.23444\\
+\beta_1 &= \frac{n(\sum x_i y_i)-(\sum x_i)(\sum y_i)}{n(\sum x_i^2)-\sum x_i^2}\\
+&= \frac{10\times349.2825-55\times82.54273}{10\times385-55^2}\\
+&= -1.269121\\
+\end{aligned}
+$$
+The least square regression line will be:
+$$y=15.23444-1.269121x$$
+\textbf{Part (b)}
+To predict value of $y$ for $x=5.5$, use the equation from part (a)
+$$y_{x=5.5}=15.23444-1.269121\times5.5=8.254274$$
+
+## Solution 3
+
+```{r}
+# (a) Load 'ec2.dat' file saved in current directory
+ec2 <- read.delim("ec2.dat")
+
+# (b) Run the lm procedure with stress as dependent variable
+ec2fit <- lm(ec2$stress ~ unemp,data = ec2)
+
+# (c) plot the scatterplot for ec2 data
+plot(ec2$unemp,ec2$stress,pch=1,col='black',
+    main='Labor stress index vs Unemployment',ylab='Labor Stress Index',
+    xlab='Unemployment',cex.main=1.25)
+
+# (d) Add regression line on the scatterplot
+cf <- round(coef(ec2fit),3) 
+eq <- paste0("stress = ",cf[2], " unemp",ifelse(sign(cf[1])==1,
+                                       " + "," - "),abs(cf[1]))
+mtext(eq,3,line=-10)
+abline(ec2fit,col='black',lwd=1)
+```
+
+## Solution 4
+
+```{r}
+# Load the library
+library('alr4')
+aisdat <- data.frame(Sex = ais$Sex, Height = ais$Ht, Weight = ais$Wt, 
+                     LBM = ais$LBM, RCC = ais$RCC, WCC = ais$WCC, 
+                     BMI = ais$BMI)
+
+# (a) Fit regression line for the 'ais' data
+aisfit <- lm(aisdat$BMI ~ ., data = aisdat)
+aiscf <- round(aisfit$coefficients,3)
+aiscf
+```
+
+From above the regression fit for the selected attributes to predict BMI is:
+$$BMI=42.897-0.106(Sex)-0.238(Ht)+0.329(Wt)-0.032(LBM)+0.075(RCC)+0.004(WCC)$$
+To test the overall fit of the model with $\alpha=0.05$, the hypothesis testing for a single independent variable is:
+Null hypothesis, $H_0$: $\beta_j=0$
+Alternative hypothesis,$H_a$: $\beta_j\neq0$
+where, $\beta_j$ is coefficient of any attribute like \textit{Sex, Height, Weight} etc in above regression model
+```{r}
+# (b) Look at the summary of the model
+summary(aisfit)
+```
+For $p-value\leq 0.05$, then we reject the null hypothesis ($H_0$: $\beta_j=0$). Which means that the factors like Height, Weight and LBM plays much important role in determining the BMI and the other parameters such as RCC, WCC and Sex is much less significant when it comes to BMI calculation.
+
+To find standard error of residuals (i.e. $\sigma_{\epsilon}$) as follows
+```{r}
+# (c) Calculation of standard residual error
+cat("Standard error of the residual for given model is:",
+    round(summary(aisfit)$sigma,4),"\n")
+# (d) R-square and adjusted R-square
+cat("R-square for given model is:",round(summary(aisfit)$r.squared,4),"\n")
+cat("R-square for given model is:",round(summary(aisfit)$adj.r.squared,4),"\n")
+```
+
+Load library 'RcmdrMisc' and check if the multiple-regression results are different
+```{r}
+library("RcmdrMisc")
+stepwise(aisfit)
+ais.step <- lm(BMI ~ .,data=aisdat)
+summary(ais.step)
+```
+
+Above rewsults are similar to the lm model. So, the brining stepwise using library 'RcmdrMisc' do not improve the model by lot. The lm model already have very high $R^2$ and there is very little room for improvement. 
+
+
+
